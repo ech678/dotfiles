@@ -32,12 +32,13 @@ configs/noctalia/
 ├── mpvpaper-sync.sh       ← mpvpaper 视频壁纸同步
 └── templates/
     ├── gtk-3.0.css        ← GTK3 M3 模板（无条件 @define-color）
-    └── gtk-4.0.css        ← GTK4 M3 模板（双 @media 块）
+    ├── gtk-4.0.css        ← GTK4 M3 模板（双 @media 块）
+    └── niri-material-you.kdl ← Niri material-you 焦点环/光晕（跟随当前配色）
 ```
 
 ### theme-sync.sh — 调度中枢
 
-`theme-sync.sh` 在深浅切换时运行，按 step 1-9 执行：
+`theme-sync.sh` 在深浅切换时运行，按 step 1-10 执行：
 
 | Step | 职责 | 说明 |
 |---|---|---|
@@ -49,14 +50,16 @@ configs/noctalia/
 | 6 | gsettings 广播 | `color-scheme` + `gtk-theme` 立即广播 |
 | 7 | settings.ini 同步 | 写入 `gtk-{3,4}.0/settings.ini` |
 | 8 | 热重载 | Kitty `SIGUSR1` + Kvantum |
-| 9 | 交互反馈 | 终端运行时打印结果 |
+| 9 | sapphire-blue 焦点环 | 深浅切换时替换 `layout-dark.kdl` / `layout-light.kdl` |
+| 10 | 交互反馈 | 终端运行时打印结果 |
 
 ### noctalia-config.toml — 注册中心
 
 - **hook 注册**：`theme_mode_changed` → `theme-sync.sh`
 - **hook 注册**：`wallpaper_changed` → `wallpaper-hook.sh`
-- **user template 注册**：`nyxniri_gtk3` / `nyxniri_gtk4`
+- **user template 注册**：`nyxniri_gtk3` / `nyxniri_gtk4` / `nyxniri_niri_material_you`
 - `/home/user` 占位符由 `nyxniri.deploy` 在部署时替换为实际 `$HOME`
+- **`nyxniri_niri_material_you`**：输出到 `~/.config/noctalia/templates/niri-material-you.rendered.kdl`。`post_hook` 检查哨兵 `material-you.enabled`，仅在该预设启用时拷入 `~/.config/niri/layout.kdl` 并触发 `niri msg action load-config-file`，彻底杜绝无条件覆写 default / sapphire-blue。
 
 ### templates/gtk-3.0.css — GTK3 M3 模板
 
@@ -303,6 +306,12 @@ output_path = "/home/user/.config/gtk-3.0/gtk.css"
 index = 4
 input_path = "/home/user/.config/noctalia/templates/gtk-4.0.css"
 output_path = "/home/user/.config/gtk-4.0/gtk.css"
+
+[theme.templates.user.nyxniri_niri_material_you]
+index = 5
+input_path = "/home/user/.config/noctalia/templates/niri-material-you.kdl"
+output_path = "/home/user/.config/noctalia/templates/niri-material-you.rendered.kdl"
+post_hook = "if [ -f /home/user/.config/niri/material-you.enabled ]; then cp -f /home/user/.config/noctalia/templates/niri-material-you.rendered.kdl /home/user/.config/niri/layout.kdl && command -v niri >/dev/null 2>&1 && niri msg action load-config-file; fi"
 ```
 
 模板部署后由 `nyxniri/modules/gtktheme.py` 的 `gtktheme_trigger_render()` 调用
@@ -620,6 +629,7 @@ nyxniri theme light
 | `configs/noctalia/noctalia-config.toml` | hook + user template 注册 |
 | `configs/noctalia/templates/gtk-3.0.css` | GTK3 M3 模板 |
 | `configs/noctalia/templates/gtk-4.0.css` | GTK4 M3 模板（双 @media） |
+| `configs/noctalia/templates/niri-material-you.kdl` | Niri material-you 焦点环/光晕（跟随当前配色） |
 | `configs/noctalia/wallpaper-hook.sh` | 壁纸切换 hook |
 | `configs/noctalia/mpvpaper-sync.sh` | mpvpaper 同步 |
 | `nyxniri/modules/gtktheme.py` | `nyxniri gtk install\|status\|uninstall` |

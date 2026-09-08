@@ -40,6 +40,7 @@ spawn-at-startup "~/.config/niri/scripts/start-noctalia.sh"
 // niri does not consume /etc/xdg/autostart entries on its own.
 spawn-at-startup "sh" "-c" "command -v fcitx5 >/dev/null 2>&1 && exec fcitx5 -d"
 spawn-at-startup "~/.config/niri/scripts/toggle-eyecare.sh" "--sync"
+spawn-at-startup "~/.config/niri/scripts/sync-focus-glow.sh"
 // Re-render GTK M3 templates after Noctalia palette is ready (~8s on cold start)
 spawn-at-startup "bash" "-c" "sleep 8; noctalia msg config-reload && noctalia msg templates-apply"
 

@@ -209,7 +209,13 @@ if [ -d "/usr/share/Kvantum/$KVANTUM_THEME" ] || [ -d "$HOME/.config/Kvantum/$KV
     atomic_update_ini "$HOME/.config/Kvantum/kvantum.kvconfig" "theme" "$KVANTUM_THEME"
 fi
 
-# 9. Feedback for Interactive CLI Invocations
+# 9. Sapphire-blue focus ring: swap dark/light layout if that preset is active.
+GLOW_SYNC="$HOME/.config/niri/scripts/sync-focus-glow.sh"
+if [ -f "$GLOW_SYNC" ]; then
+    bash "$GLOW_SYNC" "$TARGET_MODE" >/dev/null 2>&1 || true
+fi
+
+# 10. Feedback for Interactive CLI Invocations
 if [ -t 1 ] && [ -n "$ACTION" ]; then
     echo "Theme synced to: $TARGET_MODE (Scheme: $SCHEME_VAL, GTK: $GTK_THEME)"
 fi

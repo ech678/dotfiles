@@ -159,6 +159,7 @@ class TestRealRepoManifests(unittest.TestCase):
         self.assertTrue(m.is_deployable)
         # dir name = package = binary → no [packages] override needed
         self.assertEqual(m.packages_repo, ["niri"])
+        self.assertEqual(m.preset_allow, ["sapphire-blue", "material-you"])
 
     def test_starship_sidecar(self):
         m = manifest.load_manifest(self.env.configs_src / "starship.toml")
@@ -261,7 +262,7 @@ class TestRealRepoManifests(unittest.TestCase):
 
     def test_real_niri_manifest_has_presets_whitelist(self):
         m = manifest.load_manifest_for("niri")
-        self.assertEqual(m.preset_allow, ["glow"])
+        self.assertEqual(m.preset_allow, ["sapphire-blue", "material-you"])
         self.assertIn("scripts/**", m.preset_include)
         self.assertIn("*.kdl", m.preset_include)
 

@@ -226,29 +226,57 @@ class TestPresetOperations(unittest.TestCase):
         entries = preset.collect_presets("niri")
         names = [n for n, _, _ in entries]
         self.assertIn("default", names)
-        self.assertIn("glow", names)
+        self.assertIn("sapphire-blue", names)
+        self.assertIn("material-you", names)
 
     def test_apply_niri_glow_sparse_overlay_end_to_end(self):
-        ok = preset.apply_preset("niri", "glow")
+        ok = preset.apply_preset("niri", "sapphire-blue")
         self.assertTrue(ok)
-        self.assertEqual(preset.read_active_preset("niri"), "glow")
+        self.assertEqual(preset.read_active_preset("niri"), "sapphire-blue")
 
-        # Overridden sparse file
-        layout = self.env.config_dir / "niri" / "layout.kdl"
+        dest = self.env.config_dir / "niri"
+        layout = dest / "layout.kdl"
+        self.assertTrue(layout.is_file())
+        self.assertIn("shadow", layout.read_text())
+        self.assertTrue((dest / "layout-dark.kdl").is_file())
+        self.assertTrue((dest / "layout-light.kdl").is_file())
+        self.assertIn("width 2", (dest / "layout-dark.kdl").read_text())
+        self.assertIn("width 2", (dest / "layout-light.kdl").read_text())
+
+        config = dest / "config.kdl"
+        self.assertTrue(config.is_file())
+        launcher = dest / "scripts" / "orbit-launcher.py"
+        self.assertTrue(launcher.is_file())
+        self.assertFalse((dest / "material-you.enabled").exists())
+
+    def test_apply_niri_glow_m3_sparse_overlay_end_to_end(self):
+        ok = preset.apply_preset("niri", "material-you")
+        self.assertTrue(ok)
+        self.assertEqual(preset.read_active_preset("niri"), "material-you")
+
+        dest = self.env.config_dir / "niri"
+        layout = dest / "layout.kdl"
         self.assertTrue(layout.is_file())
         self.assertIn("width 2", layout.read_text())
-        self.assertIn("shadow", layout.read_text())
+        self.assertTrue((dest / "material-you.enabled").is_file())
+        self.assertTrue((dest / "config.kdl").is_file())
+        self.assertTrue((dest / "scripts" / "orbit-launcher.py").is_file())
 
-        # Inherited base files
-        config = self.env.config_dir / "niri" / "config.kdl"
-        self.assertTrue(config.is_file())
-        launcher = self.env.config_dir / "niri" / "scripts" / "orbit-launcher.py"
-        self.assertTrue(launcher.is_file())
+    def test_niri_glow_m3_template_uses_m3_tokens(self):
+        tmpl = self.env.configs_src / "noctalia" / "templates" / "niri-material-you.kdl"
+        text = tmpl.read_text()
+        self.assertIn("{{ colors.primary.default.hex }}", text)
+        self.assertIn("{{ colors.error.default.hex }}", text)
+        self.assertIn("{{ colors.primary_container.default.hex }}", text)
+        self.assertNotIn("#1a73e8", text)
+        toml = (self.env.configs_src / "noctalia" / "noctalia-config.toml").read_text()
+        self.assertIn("theme.templates.user.nyxniri_niri_material_you", toml)
+        self.assertIn("material-you.enabled", toml)
 
     @unittest.mock.patch("nyxniri.deploy.preset.timed_run")
     @unittest.mock.patch("shutil.which", return_value="/usr/bin/niri")
     def test_apply_preset_niri_reloads(self, mock_which, mock_timed_run):
-        ok = preset.apply_preset("niri", "glow")
+        ok = preset.apply_preset("niri", "sapphire-blue")
         self.assertTrue(ok)
         mock_timed_run.assert_called_with(
             ["niri", "msg", "action", "load-config-file"],
@@ -256,6 +284,50 @@ class TestPresetOperations(unittest.TestCase):
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             check=False,
+        )
+        noctalia_calls = [
+            c for c in mock_timed_run.call_args_list
+            if c.args and c.args[0][:1] == ["noctalia"]
+        ]
+        self.assertEqual(noctalia_calls, [])
+
+    @unittest.mock.patch("nyxniri.deploy.preset.timed_run")
+    def test_apply_preset_niri_glow_m3_renders_then_reloads(self, mock_timed_run):
+        def fake_which(cmd):
+            return f"/usr/bin/{cmd}"
+
+        with patch("shutil.which", side_effect=fake_which):
+            ok = preset.apply_preset("niri", "material-you")
+        self.assertTrue(ok)
+        mock_timed_run.assert_any_call(
+            ["noctalia", "msg", "config-reload"],
+            15,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        mock_timed_run.assert_any_call(
+            ["noctalia", "msg", "templates-apply"],
+            30,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        mock_timed_run.assert_any_call(
+            ["niri", "msg", "action", "load-config-file"],
+            2,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        calls = [c.args[0] for c in mock_timed_run.call_args_list]
+        self.assertLess(
+            calls.index(["noctalia", "msg", "config-reload"]),
+            calls.index(["noctalia", "msg", "templates-apply"]),
+        )
+        self.assertLess(
+            calls.index(["noctalia", "msg", "templates-apply"]),
+            calls.index(["niri", "msg", "action", "load-config-file"]),
         )
 
     @unittest.mock.patch("nyxniri.deploy.preset.timed_run")

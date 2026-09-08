@@ -20,6 +20,7 @@ layout {
         proportion 0.66667
     }
     default-column-width { proportion 0.5; }
+    // Dark: match material-you glow parameters, with sapphire-blue.
     focus-ring {
         width 2
         active-color "#1a73e8"

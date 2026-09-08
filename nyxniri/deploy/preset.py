@@ -571,6 +571,33 @@ def apply_preset(app: str, name: str) -> bool:
         return False
     _render_preset_result(app, name, preserved_log)
     if app == "niri" and shutil.which("niri"):
+        glow_sync = dest / "scripts" / "sync-focus-glow.sh"
+        if glow_sync.is_file():
+            timed_run(["bash", str(glow_sync)], 5, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+        # material-you sentinel: palette is already current, so a reload+apply is
+        # safe here (unlike theme-sync, which races Noctalia's wallpaper recast).
+        # config-reload first so a just-registered user template is picked up.
+        if (dest / "material-you.enabled").is_file() and shutil.which("noctalia"):
+            rendered_tmpl = env.config_dir / "noctalia" / "templates" / "niri-material-you.rendered.kdl"
+            if rendered_tmpl.is_file():
+                try:
+                    shutil.copy2(rendered_tmpl, dest / "layout.kdl")
+                except OSError:
+                    pass
+            timed_run(
+                ["noctalia", "msg", "config-reload"],
+                15,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+            timed_run(
+                ["noctalia", "msg", "templates-apply"],
+                30,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
         timed_run(["niri", "msg", "action", "load-config-file"], 2, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
     elif app == "kitty" and shutil.which("pkill"):
         timed_run(["pkill", "-SIGUSR1", "-x", "kitty"], 2, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
