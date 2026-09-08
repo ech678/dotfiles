@@ -127,7 +127,8 @@ NyxNiri
   - `transparent`：75% 半透明高透风味
 - **`niri`**：
   - `default`：极致极简无边框（默认）
-  - `glow`：启用 2px 轮廓与 28px 柔和弥散光晕（解决多窗口平铺下的焦点识别问题）
+  - `sapphire-blue`：宝石蓝聚焦光晕（`#1a73e8`，2px 轮廓与 28px 柔和弥散光晕）
+  - `material-you`：聚焦光晕跟随 Noctalia 当前配色（壁纸取色或内置盘）
 
 | 指令 | 作用 |
 | :--- | :--- |

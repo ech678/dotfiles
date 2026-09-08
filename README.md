@@ -127,7 +127,8 @@ Built-in official presets:
   - `transparent`: 75% higher translucency flavor
 - **`niri`**:
   - `default`: minimalist frameless look (default)
-  - `glow`: enables 2px outline and 28px soft diffused ambient glow (improves focus visibility across tiled windows)
+  - `sapphire-blue`: sapphire-blue focus glow (`#1a73e8`, 2px outline and 28px soft diffused ambient glow)
+  - `material-you`: focus glow following the current Noctalia palette (wallpaper Material You or a built-in scheme)
 
 | Command | Description |
 | :--- | :--- |

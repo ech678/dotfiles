@@ -18,7 +18,7 @@
 
 ### 预设继承控制（`[presets]` 表，可选）
 
-针对预设较多、希望支持轻量差异化预设（如 Niri `glow` 仅修改 `layout.kdl`）的应用，可通过 `[presets]` 表精确配置底版继承（Base Overlay）：
+针对预设较多、希望支持轻量差异化预设（如 Niri `sapphire-blue` 仅修改 `layout.kdl`）的应用，可通过 `[presets]` 表精确配置底版继承（Base Overlay）：
 
 | 字段 | 默认 | 作用 |
 |---|---|---|
@@ -39,7 +39,7 @@ preserve = ["monitor.kdl", "effects.kdl"]
 chmod = ["scripts/*.sh"]
 
 [presets]
-allow = ["glow"]
+allow = ["sapphire-blue", "material-you"]
 include = ["scripts/**", "*.kdl", "orbit-items__custom__.toml"]
 
 # configs/fish/.module.toml — clean-cache.py 不是 .sh，需声明 chmod

@@ -243,6 +243,15 @@ index = 4
 input_path = "/home/user/.config/noctalia/templates/gtk-4.0.css"
 output_path = "/home/user/.config/gtk-4.0/gtk.css"
 
+# Niri material-you 预设：焦点环与光晕跟随 Noctalia 当前配色（壁纸或内置盘）。
+# 模板渲染到独立的 niri-material-you.rendered.kdl，由 post_hook 在且仅在 material-you 启用时拷入 layout.kdl。
+# 避免 Noctalia 模板渲染无条件覆盖 default / sapphire-blue 预设。
+[theme.templates.user.nyxniri_niri_material_you]
+index = 5
+input_path = "/home/user/.config/noctalia/templates/niri-material-you.kdl"
+output_path = "/home/user/.config/noctalia/templates/niri-material-you.rendered.kdl"
+post_hook = "if [ -f /home/user/.config/niri/material-you.enabled ]; then cp -f /home/user/.config/noctalia/templates/niri-material-you.rendered.kdl /home/user/.config/niri/layout.kdl && command -v niri >/dev/null 2>&1 && niri msg action load-config-file; fi"
+
 [wallpaper]
 directory = "/home/user/图片/Wallpapers"
 fill_mode = "crop"

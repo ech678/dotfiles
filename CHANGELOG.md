@@ -8,7 +8,8 @@
 ## [Unreleased]
 
 ### Added
-- Niri 新增 glow 预设
+- Niri 新增 sapphire-blue 预设：宝石蓝聚焦光晕（`#1a73e8`，2px 轮廓与 28px 柔和弥散光晕）
+- Niri 新增 material-you 预设：聚焦光晕颜色跟随当前配色
 - 主页文档新增自定义配置与模块化引入的实用速查
 
 ### Fixed
